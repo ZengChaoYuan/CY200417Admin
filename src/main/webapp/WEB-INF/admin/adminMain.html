@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台首页</title>
+    <link rel="stylesheet" href="dist/css/zui.min.css">
+    <link rel="stylesheet" href="css/adminMain.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="container-fluid">
+                    <!-- 导航头部 -->
+                    <div class="navbar-header">
+                        <!-- 移动设备上的导航切换按钮 -->
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-example">
+                      <span class="sr-only">切换导航</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                    </button>
+                        <!-- 品牌名称或logo -->
+                        <a class="navbar-brand" href="#">管理端</a>
+                    </div>
+                    <!-- 导航项目 -->
+                    <div class="collapse navbar-collapse navbar-collapse-example">
+                        <!-- 一般导航项目 -->
+                        <ul class="nav navbar-nav navbar-right">
+                            <li id="adminInfoSession">
+                                <!-- <a href="#">欢迎你，XXX</a> -->
+                            </li>
+                            <li><a href="javascript:void(0)" onclick="loginOut()">退出</a></li>
+                        </ul>
+                    </div>
+               
+                </div>
+            </nav>
+        </div>
+        <div class="conter">
+            <div class="content-left">
+                <nav class="menu" data-ride="menu" style="width: 200px">
+                    <ul id="treeMenu" class="tree tree-menu" data-ride="tree">
+                       
+                    </ul>
+                </nav>
+            </div>
+            <div class="content-right">
+               <iframe id="iframe" src="" frameborder="0" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="dist/lib/jquery/jquery.js"></script>
+<script src="dist/js/zui.min.js"></script>
+<script type="text/javascript">
+
+//存在Session中的管理员信息
+function adminInfoSession(){
+	$.ajax({
+		url:"adminInfo.act",
+		type:"post",
+		dataType:"JSON",
+		success:function(data){	
+			console.log(data);
+	      var arr=data.dataList.adminInfo;
+	      var str='';
+	      str+='<a href="#">欢迎你，'+arr.adminName+""+(arr.roleId==1?"普通管理员":"高级管理员")+'</a>';
+	      //str+='<a href="#">'+(arr.roleId==1?"普通管理员":"高级管理员")+'</a>';
+	      $('#adminInfoSession').html(str);
+		},
+		error:function(data){
+			alert("请联系管理员!");
+		}
+	});
+	
+}
+
+adminInfoSession();
+
+function loginOut(){//退出
+	if(confirm("确定要退出登录吗？")){
+	$.ajax({
+		url:"loginOut.act",
+		type:"post",
+		dataType:"JSON",
+		success:function(data){
+			if(data.id==1){
+				alert(data.msg);
+				window.location.href="page.act?page="+data.location;
+			}
+		},
+		error:function(data){
+			alert("请联系管理员!");
+		}
+	});
+   }
+}
+
+$('#treeMenu').tree({
+	animate:true
+})
+$.ajax({
+	url:"menu.act",
+	type:"post",
+	dataType:"JSON",
+	success:function(data){
+		console.log(data);
+		var arr=data.dataList.menus;
+		//菜单数据
+		var tree=[];
+		//将arr中pmenuId为0的值，保存到tree数组中，保存的过程中整合成menu需要的样式
+		//递归
+		parseTree(tree,arr,0);
+		console.log(tree);
+		//获取tree实例
+		var myTree=$('#treeMenu').data('zui.tree');
+		//更新数据
+		myTree.reload(tree);
+		
+	},
+	error:function(data){
+		alert("请联系管理员!");
+	}
+});
+
+function parseTree(tree,arr,id){
+	for(var i=0;i<arr.length;i++){
+		if(arr[i].pmenuId==id){
+			var obj={
+			 html:'<a href="javascript:void(0);" onclick="changePage(\'' + arr[i].menuUrl + '\')"> <i class="icon icon-th"></i>' + arr[i].menuName + '</a>',
+			 children:[]
+			};
+			tree.push(obj);
+			//找所有的菜单，如果菜单中的pmenuId和遍历到的这个菜单的menuId相同
+			//就保存到这个菜单的children数组中
+			parseTree(obj.children,arr,arr[i].menuId);
+		    	
+		}
+	}
+	
+}
+
+function changePage(page){
+	$('#iframe').attr('src',"page.act?page="+page);
+}
+
+</script>
+</html>

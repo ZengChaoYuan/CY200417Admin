@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.FileCheckInfoMapper">
+	<resultMap type="bean.FileCheckInfo" id="FileCheckInfoMap">
+		<id column="FC_ID" property="fcId" />
+		<result column="FILE_ID" property="fileId" />
+		<result column="CHECK_STATE" property="checkState" />
+		<result column="CHECK_CTIME" property="checkCtime" />
+		<result column="ADMIN_ID" property="adminId" />
+		<association property="fileInfo" javaType="bean.FileInfo">
+			<id column="FILE_ID" property="fileId" />
+			<result column="FILE_NAME" property="fileName" />
+			<result column="UP_CTIME" property="upCtime" />
+			<result column="FILE_STATE" property="fileState" />
+			<result column="TYPE_ID" property="typeId" />
+			<result column="USER_ID" property="userId" />
+			<result column="ADMIN_ID" property="adminId" />
+			<result column="MD5_CODE" property="md5Code" />
+			<result column="FILE_SIZE" property="fileSize" />
+			<result column="SAVE_PATH" property="savePath" />
+			<result column="FILE_SCORE" property="fileScore" />
+		</association>
+		<association property="fileType" javaType="bean.FileType">
+			<id column="FT_ID" property="ftId" />
+			<result column="TYPE_NAME" property="typeName" />
+			<result column="TAIL_NAME" property="tailName" />
+			<result column="TYPE_SCORE" property="typeScore" />
+			<result column="TYPE_CTIME" property="typeCtime" />
+		</association>
+	</resultMap>
+	<!-- 没有分页的时候  -->
+	<select id="selectFileCheckList" resultMap="FileCheckInfoMap">
+	 select
+	  a.fc_id,b.file_name,b.up_ctime,c.type_name,a.check_state
+	  from file_check_info a
+      left join file_info b on a.file_id=b.file_id
+      left join file_type c on c.ft_id=b.type_id
+	</select>
+	<!-- 分页 -->
+	<select id="selectPage" resultMap="FileCheckInfoMap">
+	  select
+	  a.fc_id,b.file_name,b.up_ctime,c.ft_id,c.type_name,a.check_state
+	  from file_check_info a
+      left join file_info b on a.file_id=b.file_id
+      left join file_type c on c.ft_id=b.type_id
+      <where>
+      <if test="fileName !=null">
+        and b.file_name like CONCAT('%',CONCAT(#{fileName},'%'))
+      </if>
+      <if test="startTime != null">
+      and b.up_ctime &gt;=to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and b.up_ctime &lt;=to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+     <if test="ftId != null and ftId !=0">
+      and c.ft_id=#{ftId}
+    </if>
+      </where>
+	</select>
+	
+	<select id="countPage" resultType="long">
+	select count(0) from file_check_info a
+      left join file_info b on a.file_id=b.file_id
+      left join file_type c on c.ft_id=b.type_id
+	 <where>
+	  <if test="fileName !=null">
+        and b.file_name like CONCAT('%',CONCAT(#{fileName},'%'))
+      </if>
+      <if test="startTime != null">
+      and b.up_ctime &gt;=to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and b.up_ctime &lt;=to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+     <if test="ftId != null and ftId !=0">
+      and c.ft_id=#{ftId}
+    </if>
+	 
+	 </where>
+	</select>
+	
+	
+</mapper>  

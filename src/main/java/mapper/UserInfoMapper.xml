@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 约束，模糊匹配,补全标签 -->
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.UserInfoMapper">
+<resultMap type="bean.UserInfo" id="UserInfoMap">
+  <id column="USER_ID" property="userId"/>
+  <result column="USER_NAME" property="userName"/>
+  <result column="USER_NINAME" property="userNiName"/>
+  <result column="USER_PWD" property="userPwd"/>
+  <result column="USER_CTIME" property="userCtime"/>
+  <result column="USER_STATE" property="userState"/>
+   <result column="USER_SEX" property="userSex"/>
+    <result column="USER_EDU" property="userEdu"/>
+    <result column="USER_PRO" property="userPro"/>
+     <result column="USER_EMAIL" property="userEmail"/>
+      <result column="USER_TEL" property="userTel"/>
+       <result column="USER_SCORE" property="userScore"/>
+  </resultMap>
+  <!-- 前台管理人员分页和条件查询，页  -->
+   <select id="selectPage" resultMap="UserInfoMap">
+      select * from user_info
+    <where>
+    <if test="userName != null">
+      and user_name like CONCAT('%',CONCAT(#{userName},'%'))
+    </if>
+    <if test="startTime != null">
+      and user_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and user_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+     <if test="userTel != null">
+      and user_tel like CONCAT('%',CONCAT(#{userTel},'%'))
+    </if>
+    </where>
+    </select>
+    <!-- 前台管理人员分页和条件查询，数  -->
+  <select id="countPage" resultType="long">
+      select count(0) from user_info
+    <where>
+    <if test="userName != null">
+      and user_name like CONCAT('%',CONCAT(#{userName},'%'))
+    </if>
+    <if test="startTime != null">
+      and user_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and user_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+     <if test="userTel != null">
+      and user_tel like CONCAT('%',CONCAT(#{userTel},'%'))
+    </if>
+    </where>
+    </select>
+     <!-- 重置前台人员的密码 -->
+   <update id="updateUserPassword">
+   update user_info set user_pwd=#{user.userPwd} where user_id=#{user.userId}
+   </update>
+     <!-- 启用禁用 -->
+   <update id="updateUserUseState">
+   update user_info set user_state=#{user.userState} where user_id=#{user.userId}
+   </update>
+   <!-- 通过Id找到对应的前台人员信息 -->
+    <select id="selectUserInfoById"  resultMap="UserInfoMap">
+   SELECT * FROM USER_INFO WHERE USER_ID=#{userId}
+   </select>
+   
+</mapper>

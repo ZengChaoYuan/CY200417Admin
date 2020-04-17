@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台角色管理</title>
+<link rel="stylesheet" href="dist/css/zui.min.css">
+<link rel="stylesheet" href="css/adminOther.css">
+</head>
+
+<body>
+	<div class="panel" style="width: 80%; margin: 20px auto;">
+		<div class="panel-heading"
+			style="text-align: center; font-size: 18px; font-weight: bold;">
+			搜索条件</div>
+		<div class="panel-body">
+			<div class="col-xs-4">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">角色名</span> <input type="text"
+						class="form-control" id="roleName" placeholder="请输入角色名">
+				</div>
+			</div>
+			<div class="col-xs-8">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">创建时间</span> <input type="date"
+						class="form-control form-date" id="startTime"
+						placeholder="请选择开始时间"> <span class="input-group-addon">至</span>
+					<input type="date" class="form-control form-date" id="endTime"
+						placeholder="请选择结束时间">
+				</div>
+			</div>
+			<div class="col-xs-2">
+				<div class="with-padding">
+					<button class="btn btn-block" onclick="search()" type="button">查询</button>
+				</div>
+			</div>
+			<div class="col-xs-2">
+				<div class="with-padding">
+					<button class="btn btn-block btn-danger" type="button">新增</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel" style="width: 80%; margin: 20px auto;">
+		<div class="panel-heading"
+			style="text-align: center; font-size: 18px; font-weight: bold;">
+			角色信息管理</div>
+		<div class="panel-body">
+			<table class="table table-bordered" id="tableDataGridExample">
+				<thead>
+					<tr>
+						<th>角色名</th>
+						<th>创建时间</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="roleInfoBody">
+
+				</tbody>
+			</table>
+			<div style="width: 300px; margin: 0 auto;">
+				<input onclick="pre()" type="button" value="上一页" class="btn">
+				<span id="page">0/0</span> <input onclick="next()" type="button"
+					value="下一页" class="btn">
+			</div>
+
+		</div>
+	</div>
+</body>
+<script src="dist/lib/jquery/jquery.js"></script>
+<script src="dist/js/zui.min.js"></script>
+<script type="text/javascript">
+//初始化搜索条件参数
+var roleName='';
+var startTime='';
+var endTime='';
+
+//定义分页变量
+var count=0;//一共多少条数据
+var limit=5;//每页显示多少条数据
+var start=0;//从哪开始
+var end=4;//到哪结束
+var allPage=1;//一共多少页
+var currPage=1;//当前在第几页
+
+//定义一个全局变量保存分页的角色信息
+var roleArr=null;
+
+function initPage(){//加载分页数据
+	 $.ajax({
+		   url:"roleInfo.act",
+		   type:"post",
+		   dataType:"JSON",
+		   data:{"roleName":roleName,"startTime":startTime,"endTime":endTime,"start":start,"limit":limit},
+		   success:function(data){
+			   console.log(data.dataList);
+			   //保存搜索的数量数据
+			   count=data.dataList.count;
+			   var arr=data.dataList.roleInfo;
+			   //保存分页的角色信息
+			   roleArr=arr;
+			   var str='';
+			   for(var i=0;i<arr.length;i++){
+				   str+='<tr>';
+				   str+='<td>'+arr[i].roleName+'</td>';
+				   str+='<td>'+arr[i].roleCtime+'</td>';
+				   str+='<td>'+(arr[i].roleState==1?"启用":"禁用")+'</td>';
+				   str+='<td>';
+				   str+='<input type="button" class="btn btn-link" value="'+(arr[i].roleState==1?"禁用":"启用")+'" onclick="useState('+arr[i].roleId+')">';
+				   str+='<input type="button" class="btn btn-link" value="修改" onclick="edit('+arr[i].roleId+')">';
+				   str+='</td>';
+				   str+='</tr>';
+			   }
+			   $("#roleInfoBody").html(str);
+			
+			   //分页数据展示
+				  allPage=count % limit ==0 ?(count/limit):(parseInt(count/limit+1));
+						  $("#page").html(currPage+"/"+allPage);
+		   },
+		   error:function(data){
+			   alert("请联系管理员!");
+		   }
+		 
+	 })
+	
+	
+}
+initPage();
+function pre() {
+	   if(currPage == 1){
+			alert('这已经是第一页了');
+		}else{
+			currPage--;
+			start -= limit;
+			end -= limit;
+			initPage();
+		}
+}
+function next() {
+if(currPage == allPage){
+		alert('这已经是最后一页了');
+	}else{
+		currPage++;
+		start += limit;
+		end += limit;
+		initPage();
+	}
+}
+
+function search(){//查询
+	// 将所有分页数据初始化
+	count = 0; // 一共找到多少条数据
+	limit = 5; // 每页显示多少条数据
+	start = 0; // 从哪里开始找数据
+	end = 4; // 到哪里结束
+	allPage = 1; // 一共多少页
+	currPage = 1; // 当前在第几页
+	// 将搜索框的数据赋值给搜索的全局变量
+	roleName = $('#roleName').val();
+	startTime=  $('#startTime').val();
+	endTime =  $('#endTime').val();
+	// 初始化页面
+	initPage();
+	
+}
+
+function useState(obj){//修改角色的状态
+	var updateRoleArr=null;
+	for(var i=0;i<roleArr.length;i++){
+		if(roleArr[i].roleId==obj){
+			updateRoleArr=roleArr[i];
+		}
+	}
+	 // 这里我们就能找到该角色的所有信息了
+	console.log(updateRoleArr);
+	if(confirm("确认要修改状态吗?")){
+			$.ajax({
+				url:"editRoleState.act",
+				type:"post",
+	   		    dataType:"JSON",
+	   		    data:{"roleId":obj,"roleState":(updateRoleArr.roleState==1?"2":"1")},
+	   		    success:function(data){
+	   		    	alert(data.msg);
+	   		        //将所有的分页数据初始化
+	    			search();
+	   		    },
+	   		    error:function(data){
+  			      alert("请联系管理员！");
+  		        }
+			})
+
+		
+	}
+	
+}
+
+
+</script>
+</html>

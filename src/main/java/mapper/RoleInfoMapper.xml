@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.RoleInfoMapper">
+	<resultMap type="bean.RoleInfo" id="RoleInfoMap">
+		<id column="ROLE_ID" property="roleId" />
+		<result column="ROLE_NAME" property="roleName" />
+		<result column="ROLE_CTIME" property="roleCtime" />
+		<result column="ROLE_STATE" property="roleState" />
+	</resultMap>
+	<select id="selectAllRole" resultMap="RoleInfoMap">
+	  select * from role_info
+	</select>
+	
+	<select id="selectPage" resultMap="RoleInfoMap">
+	select * from role_info
+	<where>
+	<if test="roleName != null">
+      and role_name like CONCAT('%',CONCAT(#{roleName},'%'))
+    </if>
+    <if test="startTime != null">
+      and role_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and role_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+	</where>	
+	</select>
+	<select id="countPage" resultType="long">
+	select count(0) from role_info
+	<where>
+	<if test="roleName != null">
+      and role_name like CONCAT('%',CONCAT(#{roleName},'%'))
+    </if>
+    <if test="startTime != null">
+      and role_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and role_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+	</where>	
+	</select>
+	<!-- 启用禁用 -->
+	<update id="updateRoleUseState">
+	update role_info set role_state=#{role.roleState} where role_id=#{role.roleId}
+	</update>
+	
+</mapper>

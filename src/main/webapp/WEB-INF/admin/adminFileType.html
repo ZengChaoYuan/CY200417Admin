@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文件类型管理</title>
+<link rel="stylesheet" href="dist/css/zui.min.css">
+<style type="text/css">
+.modal-body {
+	padding: 0px;
+}
+</style>
+</head>
+
+<body>
+
+	<div class="panel" style="width: 80%; margin: 20px auto;">
+		<div class="panel-heading"
+			style="text-align: center; font-size: 18px; font-weight: bold;">
+			搜索条件</div>
+		<div class="panel-body">
+			<div class="col-xs-5">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">文件类型名称</span> <input type="text"
+						class="form-control" id="typeName" placeholder="请输入文件类型名称">
+				</div>
+			</div>
+			<div class="col-xs-7">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">创建时间</span> <input type="date"
+						class="form-control form-date" id="startTime"
+						placeholder="请选择开始时间"> <span class="input-group-addon">至</span>
+					<input type="date" class="form-control form-date" id="endTime"
+						placeholder="请选择结束时间">
+				</div>
+			</div>
+			<div class="col-xs-2">
+				<div class="with-padding">
+					<button class="btn btn-block" onclick="search()" type="button">查询</button>
+				</div>
+			</div>
+			<div class="col-xs-2">
+				<div class="with-padding">
+					<button class="btn btn-block  btn-danger" onclick="showAdd()"
+						type="button">新增</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel" style="width: 80%; margin: 20px auto;">
+		<div class="panel-heading"
+			style="text-align: center; font-size: 18px; font-weight: bold;">
+			文件类型管理</div>
+		<div class="panel-body">
+			<table class="table table-bordered" id="tableDataGridExample">
+				<thead>
+					<tr>
+						<th>文件类型名称</th>
+						<th>后缀名</th>
+						<th>创建时间</th>
+						<th>积分</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="fileTypeBody">
+
+				</tbody>
+			</table>
+			<div style="width: 300px; margin: 0 auto;">
+				<input onclick="pre()" type="button" value="上一页" class="btn">
+				<span id="page">0/0</span> <input onclick="next()" type="button"
+					value="下一页" class="btn">
+			</div>
+		</div>
+	</div>
+	<!-- 新增对话框 -->
+	<div id="addModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title">新增文档类型</h4>
+				</div>
+				<div class="modal-body modal-body-pad">
+					<div class="col-xs-12  with-padding" style="margin-top: 12px;">
+						<div class="input-group with-padding">
+							<span class="input-group-addon">文档类型名称</span> <input
+								id="addTypeName" type="text" class="form-control"
+								placeholder="请输入文档类型名称">
+						</div>
+						<div class="input-group with-padding">
+							<span class="input-group-addon">后缀名</span> <input
+								id="addTailName" type="text" class="form-control"
+								placeholder="请输入后缀名">
+						</div>
+						<div class="input-group with-padding">
+							<span class="input-group-addon">积分</span> <select
+								class="form-control" id="addTypeScore">
+								<option value="0">请输入积分</option>
+								<option value="5">5</option>
+								<option value="10">10</option>
+								<option value="15">15</option>
+								<option value="20">20</option>
+								<option value="25">25</option>
+							</select>
+						</div>
+
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary"
+						onclick="addFileType()">保存</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 修改对话框 -->
+	<div id="editModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title">修改文档类型信息</h4>
+				</div>
+				<div class="modal-body modal-body-pad">
+					<input id="editFtId" type="hidden">
+					<div class="col-xs-12  with-padding" style="margin-top: 12px;">
+						<div class="input-group with-padding">
+							<span class="input-group-addon">文档类型名称</span> <input
+								id="editTypeName" type="text" class="form-control"
+								placeholder="请输入修改的文档类型名称">
+						</div>
+						<div class="input-group with-padding">
+							<span class="input-group-addon">后缀名</span> <input
+								id="editTailName" type="text" class="form-control"
+								placeholder="请输入修改的后缀名">
+						</div>
+						<div class="input-group with-padding">
+							<span class="input-group-addon">积分</span> <input
+								id="editTypeScore" type="text" class="form-control"
+								placeholder="请输入修改的积分">
+
+						</div>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary"
+						onclick="updateFileType()">保存</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="dist/lib/jquery/jquery.js"></script>
+<script src="dist/js/zui.min.js"></script>
+<script type="text/javascript">
+//新增
+//显示新增
+function showAdd(){
+	  $('#addModal').modal({
+		   show:true,
+		   moveable:true,
+		   backdrop:'static'
+	   });
+}
+
+function updateFileType(){//修改文档类型信息
+	var $editFtId=$("#editFtId");
+	var $editTypeName=$("#editTypeName");
+	var $editTailName=$("#editTailName");
+	var $editTypeScore=$("#editTypeScore");
+	
+	if($editTypeName.val()==""){
+ 	   alert("请输入文档名称!");
+    }else if($editTailName.val()==""){
+ 	   alert("请输入后缀名!");
+    }else if($editTypeScore.val()==""){
+ 	   alert("请输入积分!");
+    }else{
+    	 $.ajax({
+    	   url:"editFileType.act",
+  		   type:"post",
+  		   dataType:"JSON",
+  		   data:{
+  			   "ftId":$editFtId.val(),"typeName":$editTypeName.val(),
+  			   "tailName":$editTailName.val(),"typeScore":$editTypeScore.val()
+  		   },
+  		 success:function(data){
+  			 alert(data.msg);
+  			 $("#editModal").modal('hide','fit');
+			   //将所有的分页数据初始化
+			 search();
+  		 },
+  		 error:function(data){
+			   alert("请联系管理员！");
+		   }    		 
+    	 })
+    }
+	
+}
+
+
+
+function timestampToTime(timestamp) {
+	   var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	   Y = date.getFullYear() + '-';
+	   M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+	   D = date.getDate() + ' ';
+	   h = date.getHours() + ':';
+	   m = date.getMinutes() + ':';
+	   s = date.getSeconds();
+	   return Y+M+D;
+}
+//初始化参数必不可少，否则servlet会报错
+var typeName='';
+var startTime='';
+var endTime='';
+
+//定义分页变量
+var count=0;//一共多少条数据
+var limit=5;//每页显示多少条数据
+var start=0;//从哪开始
+var end=4;//到哪结束
+var allPage=1;//一共多少页
+var currPage=1;//当前在第几页
+//定义一个全局变量保存分页的用户信息
+var fileTypeArr=null;
+function initPage(){//加载分页数据
+	$.ajax({
+		 url:"fileTypePage.act",
+		 type:"post",
+		 dataType:"JSON",
+		 data:{"typeName":typeName,"startTime":startTime,"endTime":endTime,
+			   "start":start,"limit":limit},
+			   success:function(data){
+				   console.log(data.dataList);
+				   //保存搜索的数量数据
+				   count=data.dataList.count;
+				   var arr=data.dataList.fileType;
+				   fileTypeArr=arr;
+				   var str='';
+				   for(var i=0;i<arr.length;i++){
+					   str+='<tr>';
+					   str+='<td>'+arr[i].typeName+'</td>';
+					   str+='<td>'+arr[i].tailName+'</td>';
+					   str+='<td>'+timestampToTime(arr[i].typeCtime)+'</td>';
+					   str+='<td>'+arr[i].typeScore+'</td>';
+					   str+='<td>';
+					   str+='<input type="button" class="btn btn-link" value="修改" onclick="update('+arr[i].ftId+')">';
+					   str+='<input type="button" class="btn btn-link" value="删除" onclick="deleteType('+arr[i].ftId+')">';
+					   str+='</td>';
+					   str+='</tr>';
+				   }
+				  $("#fileTypeBody").html(str); 
+				  //分页数据展示
+				  allPage=count % limit ==0 ?(count/limit):(parseInt(count/limit+1));
+						  $("#page").html(currPage+"/"+allPage);	
+			   },
+			   error:function(data){
+				   alert("请联系管理员!");
+			   }
+	})
+	
+}
+initPage();
+function pre() {
+	   if(currPage == 1){
+			alert('这已经是第一页了');
+		}else{
+			currPage--;
+			start -= limit;
+			end -= limit;
+			initPage();
+		}
+}
+function next() {
+if(currPage == allPage){
+		alert('这已经是最后一页了');
+	}else{
+		currPage++;
+		start += limit;
+		end += limit;
+		initPage();
+	}
+}
+
+
+function deleteType(obj){
+	if(confirm("确定要删除吗?")){
+		$.ajax({
+		      url:"delFileType.act",
+		      type:"post",
+		      dataType:"JSON",
+		      data:{"ftId":obj},
+		      success:function(data){
+		       alert(data.msg);
+   			   //将所有的分页数据初始化
+   			   search();
+		      },
+		      error:function(data){
+ 			   alert("请联系管理员！");
+ 		      }
+	   })
+	}
+	
+}
+
+
+function search(){//查询
+	// 将所有分页数据初始化
+	count = 0; // 一共找到多少条数据
+	limit = 5; // 每页显示多少条数据
+	start = 0; // 从哪里开始找数据
+	end = 4; // 到哪里结束
+	allPage = 1; // 一共多少页
+	currPage = 1; // 当前在第几页
+	// 将搜索框的数据赋值给搜索的全局变量
+	typeName = $('#typeName').val();
+	startTime=  $('#startTime').val();
+	endTime =  $('#endTime').val();
+	// 初始化页面
+	initPage();
+}
+
+function addFileType(){
+	  var $addTypeName=$("#addTypeName");
+      var $addTailName=$("#addTailName");
+      var $addTypeScore=$("#addTypeScore");
+      if($addTypeName.val()==""){
+   	   alert("请输入文档类型名称!");
+      }else if($addTailName.val()==""){
+   	   alert("请输入后缀名!");
+      }else if($addTypeScore.val()==0){
+   	   alert("请选择积分!");
+      }else{
+    	  $.ajax({
+    		  url:"addFileType.act",
+   		      type:"post",
+   		      dataType:"JSON",
+   		   data:{"addTypeName":$addTypeName.val(),"addTailName":$addTailName.val(),
+			   "addTypeScore":$addTypeScore.val()},
+			   success:function(data){
+				   alert(data.msg);
+    			   $("#addModal").modal('hide','fit');
+    			   //将所有的分页数据初始化
+    			   search();
+    			   //清空输入框里面的值
+    			   $addTypeName.val("");
+    			   $addTailName.val("");
+    			   $addTypeScore.val(0);
+			   },
+			   error:function(data){
+    			   alert("请联系管理员！");
+    		   }
+    	  })
+      }
+}
+
+
+//修改
+//展示修改
+function update(obj){
+	  $('#editModal').modal({
+		   show:true,
+		   moveable:true,
+		   backdrop:'static'
+	   });
+	    // 填写参数
+		var fileType = null;
+	    for(var i=0;i<fileTypeArr.length;i++){
+	    	if(fileTypeArr[i].ftId == obj){
+	    		fileType = fileTypeArr[i];
+			}
+	    }
+	    // 这里我们就能找到该用户的所有信息了
+		console.log(fileType);
+		$('#editFtId').val(fileType.ftId);
+		$('#editTypeName').val(fileType.typeName);
+		$('#editTailName').val(fileType.tailName);
+		$('#editTypeScore').val(fileType.typeScore); 
+		
+}
+</script>
+</html>

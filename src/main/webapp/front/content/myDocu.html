@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../../css/BuJu.css">
+    <link rel="stylesheet" href="../../dist/css/zui.min.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="container-fluid">
+                    <!-- 导航头部 -->
+                    <div class="navbar-header">
+                        <!-- 移动设备上的导航切换按钮 -->
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-example">
+                      <span class="sr-only">切换导航</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                    </button>
+
+                    </div>
+                    <!-- 导航项目 -->
+                    <div class="collapse navbar-collapse navbar-collapse-example">
+                        <ul class="nav navbar-nav navbar-left">
+                            <li><a href="#">欢迎您，XXX</a></li>
+                            <li><a href="#">当前积分:100</a></li>
+                        </ul>
+                        <!-- 一般导航项目 -->
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="#">个人信息</a></li>
+                            <li><a href="#">我要上传</a></li>
+                            <li><a href="#">我要下载</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="conter" style="flex-direction: column;">
+            <div class="panel" style="width: 55%;height: 200px; margin: 20px auto;">
+                <div class="panel-heading" style="text-align: center; font-size: 18px;font-weight: bold;">
+                    文档搜索
+                </div>
+                <div class="panel-body">
+                    <div class="col-xs-12">
+                        <div class="input-group with-padding">
+                            <span class="input-group-addon">上传日期</span>
+                            <input type="text" class="form-control form-date" placeholder="请选择开始时间">
+                            <span class="input-group-addon">至</span>
+                            <input type="text" class="form-control form-date" placeholder="请选择结束时间">
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="input-group with-padding">
+                            <span class="input-group-addon">文件类型</span>
+                            <select class="form-control">
+                                <option value="0">全部</option>
+                                <option value="1">小说</option>
+                                <option value="2">名著</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="input-group with-padding">
+                            <span class="input-group-addon">审核状态</span>
+                            <select class="form-control">
+                                <option value="0">全部</option>
+                                <option value="1">审核通过</option>
+                                <option value="2">未通过</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="with-padding">
+                            <button class="btn btn-block" type="button">查询</button>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+
+                    </div>
+                </div>
+            </div>
+            <div class="panel" style="width: 55%;margin: 20px auto;">
+                <div class="panel-heading" style="text-align: center; font-size: 18px;font-weight: bold;">
+                    搜索结果
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered" id="tableDataGridExample">
+                        <thead>
+                            <tr>
+                                <th>文件标题</th>
+                                <th>上传时间</th>
+                                <th>下载积分</th>
+                                <th>文档类型</th>
+                                <th>审核状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>斗罗大陆</td>
+                                <td>2020年3月25号</td>
+                                <td>10</td>
+                                <td>小说</td>
+                                <td>通过</td>
+                            </tr>
+                            <tr>
+                                <td>斗罗大陆</td>
+                                <td>2020年3月25号</td>
+                                <td>10</td>
+                                <td>小说</td>
+                                <td>通过</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="col-xs-4">
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-block" type="button">上一页</button>
+                    </div>
+                    <div class="col-xs-2">
+                        <button class="btn btn-block" type="button" disabled="disabled">1/1</button>
+                    </div>
+                    <div class="col-xs-1">
+                        <button class="btn btn-block" type="button">下一页</button>
+                    </div>
+                    <div class="col-xs-4">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../../dist/lib/jquery/jquery.js"></script>
+<script src="../../dist/js/zui.min.js"></script>
+
+</html>

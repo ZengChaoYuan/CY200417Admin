@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 约束，模糊匹配,补全标签 -->
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="mapper.AdminInfoMapper">
+<resultMap type="bean.AdminInfo" id="AdminInfoMap">
+  <id column="ADMIN_ID" property="adminId"/>
+  <result column="ADMIN_NAME" property="adminName"/>
+  <result column="ADMIN_PWD" property="adminPwd"/>
+  <result column="ADMIN_STATE" property="adminState"/>
+  <result column="ADMIN_CTIME" property="adminCtime"/>
+  <result column="ROLE_ID" property="roleId"/>
+  </resultMap>
+  <!--  <select id="selectAdmin"></select>
+        <select id="selectMenu"></select> -->
+        <!-- 后台管理人员分页和条件查询，页  -->
+    <select id="selectPage" resultMap="AdminInfoMap">
+      select * from admin_info
+    <where>
+    <if test="adminName != null">
+      and admin_name like CONCAT('%',CONCAT(#{adminName},'%'))
+    </if>
+    <if test="startTime != null">
+      and admin_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and admin_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+     <if test="roleId != null and roleId !=0">
+      and role_id=#{roleId}
+    </if>
+    <if test="adminState != null and adminState !=0">
+      and admin_state=#{adminState}
+    </if>
+    </where>
+    </select>    
+         <!-- 后台管理人员分页和条件查询，数  -->
+     <select id="countPage" resultType="long">
+      select count(0) from admin_info
+    <where>
+    <if test="adminName != null">
+      and admin_name like CONCAT('%',CONCAT(#{adminName},'%'))
+    </if>
+    <if test="startTime != null">
+      and admin_ctime &gt;=to_date(#{startTime},'YYYY-MM-DD')
+    </if>
+    <if test="endTime != null">
+      and admin_ctime &lt;=to_date(#{endTime},'YYYY-MM-DD')
+    </if>
+     <if test="roleId != null and roleId !=0">
+      and role_id=#{roleId}
+    </if>
+    <if test="adminState != null and adminState !=0">
+      and admin_state=#{adminState}
+    </if>
+    </where>
+    </select>      
+       <!-- 新增后台管理人员 -->
+  <insert id="insertByAdmin">
+  <selectKey order="BEFORE" keyProperty="admin.adminId" resultType="long">
+   select seq_admin_info.nextval from dual
+  </selectKey>
+  insert into admin_info values(#{admin.adminId},#{admin.adminName},#{admin.adminPwd},
+  1,SYSDATE,#{admin.roleId})
+  </insert>    
+   <!-- 修改后台管理人员信息 -->
+   <update id="updateAdminAllInfo">
+   update admin_info set admin_name =#{admin.adminName},admin_pwd=#{admin.adminPwd},role_id=#{admin.roleId}
+   where admin_id=#{admin.adminId}
+   </update>
+   <!-- 修改后台人员的密码 -->
+   <update id="updateAdminPassword">
+   update admin_info set admin_pwd=#{admin.adminPwd} where admin_id=#{admin.adminId}
+   </update>
+   <!-- 启用禁用 -->
+   <update id="updateAdminUseState">
+   update admin_info set admin_state=#{admin.adminState} where admin_id=#{admin.adminId}
+   </update>
+   <!-- 通过Id找到对应的后台管理人员信息 -->
+   <select id="selectAdminInfoById"  resultMap="AdminInfoMap">
+   SELECT * FROM ADMIN_INFO WHERE ADMIN_ID=#{adminId}
+   </select>
+</mapper>

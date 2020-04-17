@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台文件审核</title>
+<link rel="stylesheet" href="dist/css/zui.min.css">
+</head>
+
+<body>
+
+	<div class="panel" style="width: 80%; margin: 20px auto;">
+		<div class="panel-heading"
+			style="text-align: center; font-size: 18px; font-weight: bold;">
+			文件搜索</div>
+		<div class="panel-body">
+			<div class="col-xs-5">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">文件名称</span> <input type="text"
+						id="fileName" class="form-control" placeholder="请输入文件名称">
+				</div>
+			</div>
+
+			<div class="col-xs-7">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">上传时间</span> <input type="date"
+						class="form-control form-date" id="startTime"
+						placeholder="请选择开始时间"> <span class="input-group-addon">至</span>
+					<input type="date" class="form-control form-date" id="endTime"
+						placeholder="请选择结束时间">
+				</div>
+			</div>
+			<div class="col-xs-5">
+				<div class="input-group with-padding">
+					<span class="input-group-addon">文件类型</span> <select
+						class="form-control" id="ftId">
+
+					</select>
+				</div>
+			</div>
+			<div class="col-xs-2">
+				<div class="with-padding">
+					<button class="btn btn-block" onclick="search()" type="button">查询</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel" style="width: 80%; margin: 20px auto;">
+		<div class="panel-heading"
+			style="text-align: center; font-size: 18px; font-weight: bold;">
+			文件信息管理</div>
+		<div class="panel-body">
+			<table class="table table-bordered" id="tableDataGridExample">
+				<thead>
+					<tr>
+						<th>文件名称</th>
+						<th>上传时间</th>
+						<th>文件类型</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="fileCheckBody">
+
+				</tbody>
+			</table>
+			<div style="width: 300px; margin: 0 auto;">
+				<input onclick="pre()" type="button" value="上一页" class="btn">
+				<span id="page">0/0</span> <input onclick="next()" type="button"
+					value="下一页" class="btn">
+			</div>
+
+		</div>
+	</div>
+</body>
+<script src="dist/lib/jquery/jquery.js"></script>
+<script src="dist/js/zui.min.js"></script>
+<script type="text/javascript">
+function initFileTypeList() {//循环 出文件类型
+	$.ajax({
+		url : "fileType.act",
+		type : "post",
+		dataType : "JSON",
+		success : function(data) {
+			console.log(data);
+			var arr=data.dataList.fileType;
+			var str='';
+			str+=' <option value="0">请选择</option>';
+			for(var i=0;i<arr.length;i++){
+				 str+=' <option value="'+arr[i].ftId+'">'+arr[i].typeName+'</option>';
+			}
+			$("#ftId").html(str);
+		},
+		error : function(data) {
+			alert("请联系管理员！");
+		}
+	})
+	
+	
+}
+initFileTypeList();
+function timestampToTime(timestamp) {
+	   var date = new Date(timestamp);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	   Y = date.getFullYear() + '-';
+	   M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+	   D = date.getDate() + ' ';
+	   h = date.getHours() + ':';
+	   m = date.getMinutes() + ':';
+	   s = date.getSeconds();
+	   return Y+M+D;
+}
+
+//初始化参数必不可少，否则servlet会报错
+   var fileName='';
+   var startTime='';
+   var endTime='';
+   var ftId=0;
+//定义分页变量
+   var count=0;//一共多少条数据
+   var limit=5;//每页显示多少条数据
+   var start=0;//从哪开始
+   var end=4;//到哪结束
+   var allPage=1;//一共多少页
+   var currPage=1;//当前在第几页
+   //定义一个全局变量保存分页的用户信息
+   var fileCheckInfoarr=null;
+
+function initFileCheckPage() {//加载分页数据
+	//文档审核表:连表查询
+	$.ajax({
+		url : "fileCheckPage.act",
+		type : "post",
+		dataType : "JSON",
+		data:{"fileName":fileName,"startTime":startTime,"endTime":endTime,
+			"ftId":ftId,"start":start,"limit":limit},
+		success : function(data) {
+			 console.log(data.dataList);
+			 count=data.dataList.count;
+			 var arr=data.dataList.fileCheckInfo;
+			 fileCheckInfoarr=arr;
+			//开始拼接数据
+			var str='';
+			for(var i=0;i<arr.length;i++){
+				 str+='<tr>';
+				 str+='<td>'+arr[i].fileInfo.fileName+'</td>';
+				 str+='<td>'+timestampToTime(arr[i].fileInfo.upCtime)+'</td>';
+				 str+='<td>'+arr[i].fileType.typeName+'</td>';
+				 str+='<td>'+(arr[i].checkState==0?"未审核":"审核通过")+'</td>';
+				 str+='<td>';
+				 str+='<input type="button" class="btn btn-link" value="审核通过" onclick="checkUse('+arr[i].fcId+')">';
+				 str+='<input type="button" class="btn btn-link" value="审核不通过" onclick="checkUnuse('+arr[i].fcId+')">';
+				 str+='<input type="button" class="btn btn-link" value="下载" onclick="download('+arr[i].fcId+')">';
+				 str+='</td>';
+				 str+='</tr>';
+				 
+			}
+			$("#fileCheckBody").html(str);
+			  //分页数据展示
+			  allPage=count % limit ==0 ?(count/limit):(parseInt(count/limit+1));
+					  $("#page").html(currPage+"/"+allPage);
+		},
+		error : function(data) {
+			alert("请联系管理员！");
+		}
+	})
+}
+initFileCheckPage();
+
+//上一页
+function pre() {
+	   if(currPage == 1){
+			alert('这已经是第一页了');
+		}else{
+			currPage--;
+			start -= limit;
+			end -= limit;
+			initFileCheckPage();
+		}
+}
+//下一页
+function next() {
+if(currPage == allPage){
+		alert('这已经是最后一页了');
+	}else{
+		currPage++;
+		start += limit;
+		end += limit;
+		initFileCheckPage();
+	}
+}
+
+function search(){
+	    // 将所有分页数据初始化
+	    count = 0; // 一共找到多少条数据
+		limit = 5; // 每页显示多少条数据
+		start = 0; // 从哪里开始找数据
+		end = 4; // 到哪里结束
+		allPage = 1; // 一共多少页
+		currPage = 1; // 当前在第几页
+		// 将搜索框的数据赋值给搜索的全局变量
+		fileName = $('#fileName').val();
+		startTime=  $('#startTime').val();
+		endTime =  $('#endTime').val();
+		ftId =  $('#ftId').val();
+		// 初始化页面
+		initFileCheckPage();
+}
+
+	function initFileCheck() {//文档审核表
+		$.ajax({
+			url : "fileCheckInfo.act",
+			type : "post",
+			dataType : "JSON",
+			success : function(data) {
+				console.log(data);
+			},
+			error : function(data) {
+				alert("请联系管理员！");
+			}
+		})
+	}
+	initFileCheck();
+</script>
+</html>

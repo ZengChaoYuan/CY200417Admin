@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.FileTypeListMapper">
+	<resultMap type="bean.FileType" id="FileTypeMap">
+		<id column="FT_ID" property="ftId" />
+		<result column="TYPE_NAME" property="typeName" />
+		<result column="TAIL_NAME" property="tailName" />
+		<result column="TYPE_SCORE" property="typeScore" />
+		<result column="TYPE_CTIME" property="typeCtime" />
+	</resultMap>
+
+	<select id="selectFileTypeList" resultMap="FileTypeMap">
+		select * from
+		file_type
+	</select>
+
+	<select id="selectPage" resultMap="FileTypeMap">
+		select * from file_type
+		<where>
+			<if test="typeName !=null">
+				and type_name like CONCAT('%',CONCAT(#{typeName},'%'))
+			</if>
+			<if test="startTime != null">
+				and type_ctime &gt;=to_date(#{startTime},'YYYY-MM-DD')
+			</if>
+			<if test="endTime != null">
+				and type_ctime &lt;=to_date(#{endTime},'YYYY-MM-DD')
+			</if>
+		</where>
+	</select>
+
+	<select id="countPage" resultType="long">
+		select count(0) from file_type
+		<where>
+			<if test="typeName !=null">
+				and type_name like CONCAT('%',CONCAT(#{typeName},'%'))
+			</if>
+			<if test="startTime != null">
+				and type_ctime &gt;=to_date(#{startTime},'YYYY-MM-DD')
+			</if>
+			<if test="endTime != null">
+				and type_ctime &lt;=to_date(#{endTime},'YYYY-MM-DD')
+			</if>
+		</where>
+
+	</select>
+
+
+	<!-- 新增文档类型 -->
+	<insert id="insertFileType">
+		<selectKey order="BEFORE" keyProperty="fileType.ftId"
+			resultType="long">
+			select seq_file_type.nextval from dual
+		</selectKey>
+		insert into file_type
+		values(#{fileType.ftId},#{fileType.typeName},#{fileType.tailName},#{fileType.typeScore},sysdate)
+	</insert>
+    <!-- 删除文档类型  -->
+    <delete id="deleteFileType">
+     delete from file_type where ft_id=#{ftId}
+    </delete>
+    <!-- 通过Id找到对应的文档类型  -->
+    <select id="selectTypeByftId" resultMap="FileTypeMap">
+		select * from file_type where ft_id=#{ftId}
+	</select>
+    <!-- 修改文档类型 -->
+    <update id="updateFiletype">
+    update file_type set type_name =#{fileType.typeName},tail_name=#{fileType.tailName},type_score=#{fileType.typeScore}
+    where ft_id=#{fileType.ftId}
+    </update>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.UserLogMapper">
+	<resultMap type="bean.UserLog" id="UserLogMap">
+		<id column="UL_ID" property="ulId" />
+		<result column="USER_ID" property="userId" />
+		<result column="DO_NAME" property="doName" />
+		<result column="DO_CTIME" property="doCtime" />
+		<association property="userInfo" javaType="bean.UserInfo">
+			<id column="USER_ID" property="userId" />
+			<result column="USER_NAME" property="userName" />
+			<result column="USER_NINAME" property="userNiName" />
+			<result column="USER_PWD" property="userPwd" />
+			<result column="USER_CTIME" property="userCtime" />
+			<result column="USER_STATE" property="userState" />
+			<result column="USER_SEX" property="userSex" />
+			<result column="USER_EDU" property="userEdu" />
+			<result column="USER_PRO" property="userPro" />
+			<result column="USER_EMAIL" property="userEmail" />
+			<result column="USER_TEL" property="userTel" />
+			<result column="USER_SCORE" property="userScore" />
+		</association>
+		<association property="dictInfo" javaType="bean.DictInfo">
+			<id column="DICT_ID" property="dictId" />
+			<result column="CODE" property="code" />
+			<result column="NAME" property="name" />
+			<result column="VALUE" property="value" />
+		</association>
+	</resultMap>
+	<select id="selectPage" resultMap="UserLogMap">
+		select a.do_ctime,b.user_name,c.name from user_log a
+		left join user_info b on a.user_id=b.user_id
+		left join dict_info c on a.do_name=c.value where c.code='userLog'
+		<if test="userName != null">
+			and b.user_name like CONCAT('%',CONCAT(#{userName},'%'))
+		</if>
+		<if test="startTime != null">
+			and a.do_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+		</if>
+		<if test="endTime != null">
+			and a.do_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+		</if>
+		order by a.do_ctime desc
+	</select>
+
+    <select id="countPage" resultType="long">
+    select count(0) from user_log a
+		left join user_info b on a.user_id=b.user_id
+		left join dict_info c on a.do_name=c.value where c.code='userLog'
+     	<if test="userName != null">
+			and b.user_name like CONCAT('%',CONCAT(#{userName},'%'))
+		</if>
+		<if test="startTime != null">
+			and a.do_ctime &gt; = to_date(#{startTime},'YYYY-MM-DD')
+		</if>
+		<if test="endTime != null">
+			and a.do_ctime &lt; = to_date(#{endTime},'YYYY-MM-DD')
+		</if>
+    </select>
+</mapper>
